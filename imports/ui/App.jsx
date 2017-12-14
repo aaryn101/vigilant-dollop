@@ -5,8 +5,17 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { Tasks } from '../api/tasks.js';
 
-import Task from './Task.jsx';
 import AccountsUIWrapper from './AccountsUIWrapper.jsx';
+
+import { Button, Col, Row } from 'antd';
+import 'antd/dist/antd.css';
+
+import { Layout, Menu, Breadcrumb, Icon } from 'antd';
+const { SubMenu } = Menu;
+const { Header, Content, Sider } = Layout;
+
+
+import { AppHeader } from './AppHeader';
 
 // App component - represents the whole app
 class App extends Component {
@@ -14,80 +23,47 @@ class App extends Component {
     super(props);
 
     this.state = {
-      hideCompleted: false,
     };
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-
-    // Find the text field via the React ref
-    const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
-
-    Meteor.call('tasks.insert', text);
-
-    // Clear form
-    ReactDOM.findDOMNode(this.refs.textInput).value = '';
-  }
-
-  toggleHideCompleted() {
-    this.setState({
-      hideCompleted: !this.state.hideCompleted,
-    });
-  }
-
-  renderTasks() {
-    let filteredTasks = this.props.tasks;
-    if (this.state.hideCompleted) {
-      filteredTasks = filteredTasks.filter(task => !task.checked);
-    }
-    return filteredTasks.map((task) => {
-      const currentUserId = this.props.currentUser && this.props.currentUser._id;
-      const showPrivateButton = task.owner === currentUserId;
- 
-      return (
-        <Task
-          key={task._id}
-          task={task}
-          showPrivateButton={showPrivateButton}
-        />
-      );
-    });
+  onHeaderMenuSelect({ item, key, selectedKeys }) {
+    console.log(item);
+    console.log(key);
+    console.log(selectedKeys);
   }
 
   render() {
     return (
-      <div className="container">
-        <header>
-          <h1>Todo List ({this.props.incompleteCount})</h1>
-
-          <label className="hide-completed">
-            <input
-              type="checkbox"
-              readOnly
-              checked={this.state.hideCompleted}
-              onClick={this.toggleHideCompleted.bind(this)}
-            />
-            Hide Completed Tasks
-          </label>
-
-          <AccountsUIWrapper />
-
-          { this.props.currentUser ?
-            <form className="new-task" onSubmit={this.handleSubmit.bind(this)} >
-              <input
-                type="text"
-                ref="textInput"
-                placeholder="Type to add new tasks"
-              />
-            </form> : ''
-          }
-        </header>
-
-        <ul>
-          {this.renderTasks()}
-        </ul>
-      </div>
+      <Layout className='fill-parent'>
+        <AppHeader/>
+        <Layout className='fill-parent'>
+          <Sider width={200} style={{ background: '#fff' }} collapsible>
+            <Menu
+              mode="inline"
+              defaultSelectedKeys={['1']}
+              defaultOpenKeys={['1']}
+              style={{ height: '100%', borderRight: 0 }}>
+              <Menu.Item key="1">
+                <Icon type="desktop" />
+                <span>Create New...</span>
+              </Menu.Item>
+              <Menu.Item key="2">
+                <Icon type="desktop" />
+                <span>Show All</span>
+              </Menu.Item>
+            </Menu>
+          </Sider>
+          <Layout style={{ padding: '0 24px 24px' }} className='fill-parent'>
+            <Breadcrumb style={{ margin: '16px 0' }}>
+              <Breadcrumb.Item>Test Cases</Breadcrumb.Item>
+              <Breadcrumb.Item>Manage</Breadcrumb.Item>
+            </Breadcrumb>
+            <Content style={{ background: '#fff', padding: 24, margin: 0 }} className='fill-parent'>
+              Content
+            </Content>
+          </Layout>
+        </Layout>
+      </Layout>
     );
   }
 }
